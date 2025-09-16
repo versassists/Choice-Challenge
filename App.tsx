@@ -19,6 +19,7 @@ const App: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [popupItem, setPopupItem] = useState<GameItem | null>(null);
+  const [particleEffect, setParticleEffect] = useState<{position: GridPosition, key: number} | null>(null);
 
   const getEmptyPositions = useCallback(() => {
     const emptyPositions: GridPosition[] = [];
@@ -37,7 +38,7 @@ const App: React.FC = () => {
     try {
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: "Generate one common 'need' and one common 'want' for a child, with a simple, one-sentence explanation for each. For example: Need: Water, Explanation: Your body needs water to stay healthy. Want: Toy Car, Explanation: Toys are fun to play with but not essential for survival.",
+        contents: "Generate one common 'need' and one common 'want' for a child, with a simple, one-sentence explanation for each. The items should be simple nouns that can be represented by an icon. Examples - Need: Apple, Water, Book. Want: Toy Car, Burger, Game Controller.",
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -80,8 +81,8 @@ const App: React.FC = () => {
       console.error("Failed to generate items:", e);
       // Fallback items
        const newItems: GameItem[] = [
-        { id: 1, position: {x: 18, y: 9}, type: 'need', name: 'Water', explanation: 'Your body needs water to stay healthy and strong.' },
-        { id: 2, position: {x: 1, y: 9}, type: 'want', name: 'Toy Car', explanation: 'Toys are fun to play with, but you don\'t need them to live.' },
+        { id: 1, position: {x: 18, y: 9}, type: 'need', name: 'Apple', explanation: 'Your body needs healthy food like apples to grow.' },
+        { id: 2, position: {x: 1, y: 9}, type: 'want', name: 'Game Controller', explanation: 'Video games are fun, but not essential for your health or survival.' },
       ];
        setGameState(prev => ({ ...prev, items: newItems }));
     } finally {
@@ -158,6 +159,10 @@ const App: React.FC = () => {
       setGameState(prev => ({ ...prev, playerPosition: newPosition }));
 
       if (collectedItem) {
+        if (collectedItem.type === 'need') {
+            setParticleEffect({ position: collectedItem.position, key: Date.now() });
+            setTimeout(() => setParticleEffect(null), 1000);
+        }
         setPopupItem(collectedItem);
       }
     }
@@ -183,6 +188,7 @@ const App: React.FC = () => {
                 items={gameState.items}
                 lives={gameState.lives}
                 score={gameState.score}
+                particleEffect={particleEffect}
             />}
             {popupItem && <InfoPopup item={popupItem} onClose={handleClosePopup} />}
           </>

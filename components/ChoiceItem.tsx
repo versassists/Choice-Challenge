@@ -8,6 +8,8 @@ interface ChoiceItemProps {
 }
 
 const ChoiceItem: React.FC<ChoiceItemProps> = ({ item }) => {
+  const isNeed = item.type === 'need';
+
   return (
     <div
       className="game-item"
@@ -25,7 +27,10 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ item }) => {
         backgroundColor: '#fff',
         border: '3px solid #ccc',
         borderRadius: '4px',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        animation: isNeed 
+          ? 'pulsing-glow-need 2s infinite ease-in-out' 
+          : 'pulsing-glow-want 2s infinite ease-in-out'
       }}
     >
       <div style={{width: '70%', height: '70%'}}>
